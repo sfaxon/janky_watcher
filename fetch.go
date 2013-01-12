@@ -7,7 +7,7 @@ import "net/http"
 import "code.google.com/p/go-html-transform/h5"
 
 func main() {
-  resp, err := http.Get("http://build.marshill.info")
+  resp, err := http.Get("http://build.marshill.info/marshill")
   if err != nil {
     fmt.Printf("error: %s", err)
   }
@@ -16,12 +16,22 @@ func main() {
   p := h5.NewParser(resp.Body)
 
 	p.Parse()
-	i := 0
-	f := func(n *h5.Node) {
-    fmt.Printf("%s\n", n.Data())
-		i++
+  getFirstLI := func(n *h5.Node) {
+    if "li" == n.Data() {
+      fmt.Printf("%s : %s\n", n.Data(), n.Attr)
+      fmt.Printf(" n.attr: %s\n", n.Attr[0].Value)
+      if "good" == n.Attr[0].Value {
+        fmt.Printf("   FOUND GOOD")
+      }
+    }
+  }
+	getFirstUL := func(n *h5.Node) {
+    if "ul" == n.Data() {
+      fmt.Printf("%s : %T\n", n.Data(), n.Attr)
+      n.Walk(getFirstLI)
+    }
 	}
-	p.Top.Walk(f)
+	p.Top.Walk(getFirstUL)
   
   fmt.Printf("hello\n")
   
