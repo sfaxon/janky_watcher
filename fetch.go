@@ -12,9 +12,9 @@ import "code.google.com/p/go-html-transform/h5"
 
 const (
   UNKNOWN  int = 0
-  JANKY    int = 1
+  GOOD     int = 1
   BUILDING int = 2
-  GOOD     int = 3
+  JANKY    int = 3
 )
 
 type Build struct {
@@ -36,7 +36,7 @@ func (b Build) String() string {
 
 // b *Build is pasesd by pointer, so the Build struct is modified
 // not sure if this is idomatic or just a mess. leaning toward messy
-func (b *Build) wasLastBuildGood() int{
+func (b *Build) wasLastBuildGood() int {
   resp, err := http.Get(b.url)
   if err != nil {
     fmt.Printf("error: %s", err)
@@ -49,6 +49,16 @@ func (b *Build) wasLastBuildGood() int{
 
   b.status = parseWasLastBuildGood(p)
   return b.status
+}
+
+func wostCaseBuild(builds []Build) Build {
+  returning := Build{}
+  for i := 0; i < len(builds); i++ {
+    if builds[i].status > returning.status {
+      returning = builds[i]
+    }
+  }
+  return returning
 }
 
 func parseWasLastBuildGood(p *h5.Parser) int {
@@ -109,5 +119,8 @@ func main() {
     siteList[i].wasLastBuildGood()
     fmt.Printf("%s - %s\n", siteList[i].url, siteList[i])
   }
+
+  worst := wostCaseBuild(siteList)
+  fmt.Printf("worst: %s - %s\n", worst.url, worst)
 
 }
