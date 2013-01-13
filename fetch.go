@@ -10,21 +10,38 @@ import "errors"
 // import "io/ioutil"
 import "code.google.com/p/go-html-transform/h5"
 
+const (
+  GOOD     int = 0
+  BUILDING int = 1
+  JANKY    int = 2
+)
 
 type Build struct {
-  status string // building, good, janky
+  status int // building, good, janky
+}
+
+func (b Build) String() string {
+  switch {
+  case b.status == 0:
+    return "GOOD"
+  case b.status == 1:
+    return "BUILDING"
+  case b.status == 2:
+    return "JANKY"
+  }
+  return "UNKNOWN STATE"
 }
 
 func parseWasLastBuildGood(p *h5.Parser) Build {
-  returning := Build{status: "janky"} // default to failed state
+  returning := Build{status: JANKY} // default to failed state
   count := 0
   setReturningTrueIfFistLIisGood:= func(n *h5.Node) {
     if "li" == n.Data() && 0 == count {
       switch n.Attr[0].Value {
       case "good":
-        returning.status = "good"
+        returning.status = GOOD
       case "building":
-        returning.status = "building"
+        returning.status = BUILDING
       }
       count++
     }
