@@ -2,6 +2,7 @@ package main
 
 import "fmt"
 import "net/http"
+// import "bufio"
 // import "strings"
 // import "io/ioutil"
 import "code.google.com/p/go-html-transform/h5"
@@ -46,7 +47,12 @@ func wasLastBuildGoodOn(url string) Build {
 
 func main() {
   
-  fmt.Printf("was last build good at: %s\n", wasLastBuildGoodOn("http://build.marshill.info/marshill/seeds"))
-  fmt.Printf("was last build good at: %s\n", wasLastBuildGoodOn("http://build.marshill.info/marshill"))
+  siteList := []string{
+    "http://build.marshill.info/marshill/seeds",
+    "http://build.marshill.info/marshill"}
+  
+  for i := 0; i < len(siteList); i++ {
+    fmt.Printf("%s %s\n", siteList[i], wasLastBuildGoodOn(siteList[i]))
+  }
 
 }
