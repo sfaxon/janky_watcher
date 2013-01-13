@@ -2,7 +2,10 @@ package main
 
 import "fmt"
 import "net/http"
-// import "bufio"
+import "bufio"
+import "io"
+import "os"
+import "errors"
 // import "strings"
 // import "io/ioutil"
 import "code.google.com/p/go-html-transform/h5"
@@ -45,12 +48,39 @@ func wasLastBuildGoodOn(url string) Build {
   return parseWasLastBuildGood(p)
 }
 
+func ReadConfigFile(filename string) []string {
+  returning := []string{}
+  f, err := os.Open(filename)
+  if err != nil {
+    fmt.Println(err)
+    return returning
+  }
+  defer f.Close()
+  r := bufio.NewReaderSize(f, 4*1024)
+  line, isPrefix, err := r.ReadLine()
+  for err == nil && !isPrefix {
+    s := string(line)
+    returning = append(returning, s)
+    line, isPrefix, err = r.ReadLine()
+  }
+  if isPrefix {
+    fmt.Println(errors.New("buffer size to small"))
+    return returning
+  }
+  if err != io.EOF {
+    fmt.Println(err)
+    return returning
+  }
+  return returning
+}
+
 func main() {
   
-  siteList := []string{
-    "http://build.marshill.info/marshill/seeds",
-    "http://build.marshill.info/marshill"}
-  
+  filename := "sitelist.txt"
+  siteList := ReadConfigFile(filename)
+
+  // fmt.Printf("%T %s\n", siteList, siteList)
+
   for i := 0; i < len(siteList); i++ {
     fmt.Printf("%s %s\n", siteList[i], wasLastBuildGoodOn(siteList[i]))
   }
