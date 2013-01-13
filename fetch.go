@@ -15,11 +15,11 @@ func parseWasLastBuildGood(p *h5.Parser) Build {
   returning := Build{status: "janky"} // default to failed state
   count := 0
   setReturningTrueIfFistLIisGood:= func(n *h5.Node) {
-    if "li" == n.Data() {
-      if "good" == n.Attr[0].Value && 0 == count {
+    if "li" == n.Data() && 0 == count {
+      switch n.Attr[0].Value {
+      case "good":
         returning.status = "good"
-      }
-      if "building" == n.Attr[0].Value && 0 == count {
+      case "building":
         returning.status = "building"
       }
       count++
@@ -47,5 +47,6 @@ func wasLastBuildGoodOn(url string) Build {
 func main() {
   
   fmt.Printf("was last build good at: %s\n", wasLastBuildGoodOn("http://build.marshill.info/marshill/seeds"))
+  fmt.Printf("was last build good at: %s\n", wasLastBuildGoodOn("http://build.marshill.info/marshill"))
 
 }
