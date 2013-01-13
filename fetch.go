@@ -5,6 +5,7 @@ import (
 	"io"
 	"bufio"
 	"fmt"
+	"flag"
 	"log"
 	"net/http"
 	"code.google.com/p/go-html-transform/h5"
@@ -109,7 +110,11 @@ func ReadConfigFile(filename string) []Build {
 	return returning
 }
 
+// fetch.go --port :1987
+var addr = flag.String("port", ":1718", "http service address")
+
 func main() {
+	flag.Parse()
 	filename := "sitelist.txt"
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -119,5 +124,6 @@ func main() {
 		}
 		fmt.Fprintf(w, "%s\n", wostCaseBuild(siteList))
 	})
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	fmt.Printf("listening on port %s\n", *addr)
+	log.Fatal(http.ListenAndServe(*addr, nil))
 }
