@@ -6,6 +6,7 @@ import "bufio"
 import "io"
 import "os"
 import "errors"
+import "log"
 // import "strings"
 // import "io/ioutil"
 import "code.google.com/p/go-html-transform/h5"
@@ -41,6 +42,7 @@ func (b *Build) wasLastBuildGood() int {
   if err != nil {
     fmt.Printf("error: %s", err)
   }
+  fmt.Printf("fetched: %s\n", b.url)
   defer resp.Body.Close()
 
   p := h5.NewParser(resp.Body)
@@ -109,18 +111,14 @@ func ReadConfigFile(filename string) []Build {
 }
 
 func main() {
-  
   filename := "sitelist.txt"
-  siteList := ReadConfigFile(filename)
-
-  // fmt.Printf("%T %s\n", siteList, siteList)
-
-  for i := 0; i < len(siteList); i++ {
-    siteList[i].wasLastBuildGood()
-    fmt.Printf("%s - %s\n", siteList[i].url, siteList[i])
-  }
-
-  worst := wostCaseBuild(siteList)
-  fmt.Printf("worst: %s - %s\n", worst.url, worst)
-
+  
+  http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+    siteList := ReadConfigFile(filename)
+    for i := 0; i < len(siteList); i++ {
+      siteList[i].wasLastBuildGood()
+    }
+    fmt.Fprintf(w, "%s\n", wostCaseBuild(siteList))
+  })
+  log.Fatal(http.ListenAndServe(":8080", nil))
 }
