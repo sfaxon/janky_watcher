@@ -18,6 +18,7 @@ const (
 )
 
 type Build struct {
+  url    string // where are we looking
   status int // building, good, janky
 }
 
@@ -33,18 +34,35 @@ func (b Build) String() string {
   return "UNKNOWN STATE"
 }
 
-func parseWasLastBuildGood(p *h5.Parser) Build {
-  returning := Build{} // default to unknown state
+// b *Build is pasesd by pointer, so the Build struct is modified
+// not sure if this is idomatic or just a mess. leaning toward messy
+func (b *Build) wasLastBuildGood() int{
+  resp, err := http.Get(b.url)
+  if err != nil {
+    fmt.Printf("error: %s", err)
+  }
+  defer resp.Body.Close()
+
+  p := h5.NewParser(resp.Body)
+
+	p.Parse()
+
+  b.status = parseWasLastBuildGood(p)
+  return b.status
+}
+
+func parseWasLastBuildGood(p *h5.Parser) int {
+  returning := 0 //Build{url: url} // default to unknown state
   count := 0
   setReturningTrueIfFistLIisGood:= func(n *h5.Node) {
     if "li" == n.Data() && 0 == count {
       switch n.Attr[0].Value {
       case "good":
-        returning.status = GOOD
+        returning = GOOD
       case "building":
-        returning.status = BUILDING
+        returning = BUILDING
       case "janky":
-        returning.status = JANKY
+        returning = JANKY
       }
       count++
     }
@@ -54,22 +72,8 @@ func parseWasLastBuildGood(p *h5.Parser) Build {
   return returning
 }
 
-func wasLastBuildGoodOn(url string) Build {
-  resp, err := http.Get(url)
-  if err != nil {
-    fmt.Printf("error: %s", err)
-  }
-  defer resp.Body.Close()
-
-  p := h5.NewParser(resp.Body)
-
-	p.Parse()
-  
-  return parseWasLastBuildGood(p)
-}
-
-func ReadConfigFile(filename string) []string {
-  returning := []string{}
+func ReadConfigFile(filename string) []Build {
+  returning := []Build{}
   f, err := os.Open(filename)
   if err != nil {
     fmt.Println(err)
@@ -80,7 +84,7 @@ func ReadConfigFile(filename string) []string {
   line, isPrefix, err := r.ReadLine()
   for err == nil && !isPrefix {
     s := string(line)
-    returning = append(returning, s)
+    returning = append(returning, Build{url: s})
     line, isPrefix, err = r.ReadLine()
   }
   if isPrefix {
@@ -102,7 +106,8 @@ func main() {
   // fmt.Printf("%T %s\n", siteList, siteList)
 
   for i := 0; i < len(siteList); i++ {
-    fmt.Printf("%s %s\n", siteList[i], wasLastBuildGoodOn(siteList[i]))
+    siteList[i].wasLastBuildGood()
+    fmt.Printf("%s - %s\n", siteList[i].url, siteList[i])
   }
 
 }
