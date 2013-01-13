@@ -7,13 +7,20 @@ import "net/http"
 import "code.google.com/p/go-html-transform/h5"
 
 
-func parseWasLastBuildGood(p *h5.Parser) bool {
-  returning := false
+type Build struct {
+  status string // building, good, janky
+}
+
+func parseWasLastBuildGood(p *h5.Parser) Build {
+  returning := Build{status: "janky"} // default to failed state
   count := 0
   setReturningTrueIfFistLIisGood:= func(n *h5.Node) {
     if "li" == n.Data() {
       if "good" == n.Attr[0].Value && 0 == count {
-        returning = true
+        returning.status = "good"
+      }
+      if "building" == n.Attr[0].Value && 0 == count {
+        returning.status = "building"
       }
       count++
     }
@@ -23,7 +30,7 @@ func parseWasLastBuildGood(p *h5.Parser) bool {
   return returning
 }
 
-func wasLastBuildGoodOn(url string) bool {
+func wasLastBuildGoodOn(url string) Build {
   resp, err := http.Get(url)
   if err != nil {
     fmt.Printf("error: %s", err)
@@ -39,6 +46,6 @@ func wasLastBuildGoodOn(url string) bool {
 
 func main() {
   
-  fmt.Printf("was last build good at: %s\n", wasLastBuildGoodOn("http://build.marshill.info/marshill"))
+  fmt.Printf("was last build good at: %s\n", wasLastBuildGoodOn("http://build.marshill.info/marshill/seeds"))
 
 }
