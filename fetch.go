@@ -1,14 +1,13 @@
 package main
 
 import (
-	"bufio"
-	"code.google.com/p/go-html-transform/h5"
-	"errors"
-	"fmt"
+	"os"
 	"io"
+	"bufio"
+	"fmt"
 	"log"
 	"net/http"
-	"os"
+	"code.google.com/p/go-html-transform/h5"
 )
 
 const (
@@ -100,7 +99,7 @@ func ReadConfigFile(filename string) []Build {
 		line, isPrefix, err = r.ReadLine()
 	}
 	if isPrefix {
-		fmt.Println(errors.New("buffer size to small"))
+		fmt.Println("error: buffer size to small")
 		return returning
 	}
 	if err != io.EOF {
