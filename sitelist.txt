@@ -1,2 +1,14 @@
-http://build.marshill.info/marshill/seeds
+http://build.marshill.info/marshill/master
 http://build.marshill.info/marshill
+http://build.marshill.info/theresurgence/master
+http://build.marshill.info/theresurgence
+http://build.marshill.info/pastormark/master
+http://build.marshill.info/pastormark
+http://build.marshill.info/theconnectdesk/master
+http://build.marshill.info/theconnectdesk
+http://build.marshill.info/theconnectdesk_oauth/master
+http://build.marshill.info/theconnectdesk_oauth
+http://build.marshill.info/notification_service/master
+http://build.marshill.info/notification_service
+http://build.marshill.info/redis-redirect/master
+http://build.marshill.info/redis-redirect
