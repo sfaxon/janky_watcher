@@ -1,5 +1,3 @@
-Just an experiment in go.
-
 ## Janky Watcher
 
 This is a [go](http://golang.org/) app that aggregates the last build status from [janky](https://github.com/github/janky).  The output is a single http response:
