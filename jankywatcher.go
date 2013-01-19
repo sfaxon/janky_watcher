@@ -8,6 +8,7 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"net/url"
 	"code.google.com/p/go-html-transform/h5"
 )
 
@@ -84,6 +85,9 @@ func parseWasLastBuildGood(p *h5.Parser) int {
 	return returning
 }
 
+
+// Reads the sitelist.txt file and returns an array of Build structs
+// The sitelist.txt file is expected to be a line seperated list of arrays
 func ReadConfigFile(filename string) []Build {
 	returning := []Build{}
 	f, err := os.Open(filename)
@@ -96,7 +100,11 @@ func ReadConfigFile(filename string) []Build {
 	line, isPrefix, err := r.ReadLine()
 	for err == nil && !isPrefix {
 		s := string(line)
-		returning = append(returning, Build{url: s})
+		_, pErr := url.Parse(s)
+		// only add items that are valid urls
+		if nil == pErr {
+			returning = append(returning, Build{url: s})
+		}
 		line, isPrefix, err = r.ReadLine()
 	}
 	if isPrefix {
