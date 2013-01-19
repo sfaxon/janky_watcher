@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"io"
+	"strings"
 	"bufio"
 	"fmt"
 	"flag"
@@ -88,9 +89,10 @@ func parseWasLastBuildGood(p *h5.Parser) int {
 
 // Reads the sitelist.txt file and returns an array of Build structs
 // The sitelist.txt file is expected to be a line seperated list of arrays
-func ReadConfigFile(filename string) []Build {
+// anything after a space on the line is ignored
+func ReadConfigFile(configFilePath string) []Build {
 	returning := []Build{}
-	f, err := os.Open(filename)
+	f, err := os.Open(configFilePath)
 	if err != nil {
 		fmt.Println(err)
 		return returning
@@ -100,6 +102,10 @@ func ReadConfigFile(filename string) []Build {
 	line, isPrefix, err := r.ReadLine()
 	for err == nil && !isPrefix {
 		s := string(line)
+		if strings.Contains(s, " ") {
+			fmt.Println("slicing : ", s )
+			s = strings.Split(s, " ")[0]
+		}
 		_, pErr := url.Parse(s)
 		// only add items that are valid urls
 		if nil == pErr {
