@@ -17,3 +17,4 @@ command line options are:
 
 compiling with go is as easy as: 
 go build jankywatcher.go
+
