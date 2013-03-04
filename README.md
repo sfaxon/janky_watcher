@@ -16,5 +16,20 @@ command line options are:
 ## building
 
 compiling with go is as easy as: 
-go build jankywatcher.go
+go build jankyapp/server.go
+
+## including
+
+you should be able to import the parsing library and use in your own server if you would like: 
+
+    import "github.com/sfaxon/janky_watcher"
+    func main() {
+      http.HandleFunc("/PATH_YOU_WANT", func(w http.ResponseWriter, r *http.Request) {
+        siteList := jankypack.ReadConfigFile('CONFIG_FILE_PATH')
+        for i := 0; i < len(siteList); i++ {
+        	siteList[i].WasLastBuildGood()
+        }
+        fmt.Fprintf(w, "%s\n", jankypack.WostCaseBuild(siteList))
+      })
+    }
 

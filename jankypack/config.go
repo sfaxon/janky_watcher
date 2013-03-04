@@ -1,16 +1,15 @@
-package main
+package jankypack
 
 import (
 	"bufio"
 	"code.google.com/p/go-html-transform/h5"
-	"flag"
 	"fmt"
 	"io"
-	"log"
-	"net/http"
 	"net/url"
 	"os"
 	"strings"
+
+	"net/http"
 )
 
 const (
@@ -39,7 +38,7 @@ func (b Build) String() string {
 
 // b *Build is pasesd by pointer, so the Build struct is modified
 // not sure if this is idomatic or just a mess. leaning toward messy
-func (b *Build) wasLastBuildGood() int {
+func (b *Build) WasLastBuildGood() int {
 	resp, err := http.Get(b.url)
 	if err != nil {
 		fmt.Printf("error: %s", err)
@@ -55,7 +54,7 @@ func (b *Build) wasLastBuildGood() int {
 	return b.status
 }
 
-func wostCaseBuild(builds []Build) Build {
+func WostCaseBuild(builds []Build) Build {
 	returning := Build{}
 	for i := 0; i < len(builds); i++ {
 		if builds[i].status > returning.status {
@@ -121,22 +120,4 @@ func ReadConfigFile(configFilePath string) []Build {
 		return returning
 	}
 	return returning
-}
-
-// fetch.go --port :1987
-var addr = flag.String("port", ":1718", "http service address")
-
-func main() {
-	flag.Parse()
-	filename := "sitelist.txt"
-
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		siteList := ReadConfigFile(filename)
-		for i := 0; i < len(siteList); i++ {
-			siteList[i].wasLastBuildGood()
-		}
-		fmt.Fprintf(w, "%s\n", wostCaseBuild(siteList))
-	})
-	fmt.Printf("listening on port %s\n", *addr)
-	log.Fatal(http.ListenAndServe(*addr, nil))
 }
